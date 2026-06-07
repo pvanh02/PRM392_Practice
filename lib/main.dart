@@ -10,6 +10,9 @@ import 'lab4/exercise_5.dart';
 // Import Lab 5 App
 import 'lab5/movie_home_screen.dart';
 
+// Import Lab 6 App
+import 'lab6/genre_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -283,6 +286,19 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const MovieHomeScreen()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 6: Responsive Genre Browser',
+                subtitle: 'Adaptive Grid/List layouts for Mobile and Tablet viewports.',
+                icon: Icons.aspect_ratio_outlined,
+                color: Colors.deepOrange.shade600,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GenreScreen()),
                   );
                 },
               ),
