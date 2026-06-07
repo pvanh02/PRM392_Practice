@@ -7,6 +7,9 @@ import 'lab4/exercise_3.dart';
 import 'lab4/exercise_4.dart';
 import 'lab4/exercise_5.dart';
 
+// Import Lab 5 App
+import 'lab5/movie_home_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -267,6 +270,19 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const DebugUIErrorsDemo()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 5: Movie Detail App',
+                subtitle: 'Scrollable list, Hero animations, search filter, and favorite toggle.',
+                icon: Icons.movie_outlined,
+                color: Colors.teal.shade600,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MovieHomeScreen()),
                   );
                 },
               ),
