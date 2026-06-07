@@ -13,6 +13,9 @@ import 'lab5/movie_home_screen.dart';
 // Import Lab 6 App
 import 'lab6/genre_screen.dart';
 
+// Import Lab 7 App
+import 'lab7/signup_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -299,6 +302,19 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const GenreScreen()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 7: Signup Form & Validation',
+                subtitle: 'Signup form with focus management, strength checks, and email verification.',
+                icon: Icons.app_registration_outlined,
+                color: Colors.pink.shade600,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignupScreen()),
                   );
                 },
               ),
