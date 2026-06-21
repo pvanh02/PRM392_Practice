@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 11.4 Part B – DevTools Debugging Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #1a237e;
+            border-bottom: 2px solid #1a237e;
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 28px;
+        }
+        h2 {
+            color: #0d47a1;
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            font-size: 20px;
+        }
+        h3 {
+            color: #1565c0;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        p, li {
+            font-size: 15px;
+            color: #444;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight-box {
+            background-color: #e8eaf6;
+            border-left: 4px solid #3f51b5;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .highlight-box-title {
+            font-weight: bold;
+            color: #1a237e;
+            margin-bottom: 5px;
+        }
+        .code-block {
+            background-color: #f1f3f4;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #272727;
+            overflow-x: auto;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .badge {
+            background-color: #e53935;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        .badge-perf {
+            background-color: #fb8c00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lab 11.4 Part B – DevTools Debugging Report</h1>
+        <p><strong>Course:</strong> PRM392 - Mobile Application Development (Flutter)</p>
+        <p><strong>Lab Module:</strong> Lab 11 — Testing & Debugging in Flutter (Taskly App)</p>
+        <p><strong>Status:</strong> Completed</p>
+        
+        <hr>
+
+        <h2>1. Potential Layout Issue: Text Overflow in ListTile Row</h2>
+        <span class="badge">Layout Issue</span>
+        
+        <h3>Description</h3>
+        <p>In the <code>TaskListScreen</code> list layout, tasks are displayed inside a <code>Row</code> which acts as the main content structure for each task row. This <code>Row</code> contains a <code>Checkbox</code>, a <code>Text</code> widget for the task title, and an <code>IconButton</code> for deletions. When a user inputs an exceptionally long task title, the layout tries to expand horizontally without constraint boundaries. Because the screen has fixed width boundaries, this causes an <strong>A-overflow (Right overflowed by X pixels)</strong> rendering exception, displaying the striped hazard warning pattern on the viewport.</p>
+
+        <h3>How Widget Inspector Detects It</h3>
+        <ul>
+            <li><strong>Visual Boundary Highlight:</strong> When inspecting with the Widget Inspector, a visual bounding box outlines the overflowing nodes, and the layout tree highlights nodes violating bounds in red.</li>
+            <li><strong>Details Tree Constraints:</strong> Selecting the <code>Text</code> node shows its width constraint is <code>unbounded</code> because it resides directly inside a row without width constraints.</li>
+            <li><strong>Debug Paint Mode:</strong> Enabling "Debug Paint" draws arrows and boundaries illustrating exactly where layout boxes exceed parent canvas limits.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <div class="highlight-box-title">Resolution:</div>
+            <p>Wrap the task <code>Text</code> widget inside an <code>Expanded</code> or <code>Flexible</code> widget. This forces the text layout width to align with the remaining horizontal space in the parent row, wrapping lines onto a new line or truncating with <code>TextOverflow.ellipsis</code>.</p>
+        </div>
+
+        <h2>2. Potential Performance Issue: Unnecessary List View Rebuilds</h2>
+        <span class="badge badge-perf">Performance Issue</span>
+
+        <h3>Description</h3>
+        <p>Whenever a task state is modified (like completion toggle or item addition/deletion), <code>setState()</code> is called in the main screen class. This rebuilds the entire <code>TaskListScreen</code> widget subtree, triggering a complete redraw of the <code>ListView.builder</code> container. In application scenarios with hundreds of tasks, redrawing every single ListTile, text node, and button during keystroke events or single checkbox updates degrades performance, causing frame drops (jank) and dropping rates below 60fps.</p>
+
+        <h3>How Performance Timeline Detects It</h3>
+        <ul>
+            <li><strong>Frame Rendering Graphs:</strong> The Performance Timeline displays bar charts for each frame. If a rebuild operation takes longer than 16.6ms (60Hz) or 8.3ms (120Hz), the chart highlights it in red, indicating a frame drop.</li>
+            <li><strong>Widget Rebuild Stats:</strong> Using the rebuild tracker in DevTools shows abnormal build counts for list item widgets, indicating they are re-instantiated during unrelated state mutations.</li>
+            <li><strong>CPU Profiler & GC Spikes:</strong> The CPU flame chart outlines execution bottlenecks and garbage collection (GC) sweeps triggered by trash generation of redundant short-lived widgets.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <div class="highlight-box-title">Resolution:</div>
+            <ul>
+                <li>Extract child rows into standalone <code>const</code> widgets to prevent rebuilds if the inputs remain identical.</li>
+                <li>Utilize localized build blocks like <code>ValueListenableBuilder</code>, <code>InheritedNotifier</code>, or state managers (Provider/Riverpod) to only update the specific item modified.</li>
+            </ul>
+        </div>
+
+        <h2>3. Conclusion: Benefits of Automated Testing & DevTools</h2>
+        <p>Integrating tests with DevTools forms a robust quality framework:</p>
+        <ul>
+            <li><strong>Automated Testing:</strong> Validates code logic and navigation flows programmatically, catching bugs before runtime deployment.</li>
+            <li><strong>DevTools:</strong> Visualizes execution pipelines and widget structures, making it simple to track down constraints violations and frame rate drops.</li>
+        </ul>
+
+        <div class="footer">
+            <p>PRM392 Showcase Application © 2026 - FPT University</p>
+        </div>
+    </div>
+</body>
+</html>

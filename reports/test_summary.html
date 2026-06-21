@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 11.5 – Test Suite Summary Document</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #2e7d32;
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 28px;
+        }
+        h2 {
+            color: #378e3c;
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            font-size: 20px;
+        }
+        p, li {
+            font-size: 15px;
+            color: #444;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .status-pass {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .summary-badge {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lab 11.5 – Test Suite Summary Document</h1>
+        <p><strong>Course:</strong> PRM392 - Mobile Application Development (Flutter)</p>
+        <p><strong>Lab Module:</strong> Lab 11 — Testing & Debugging in Flutter (Taskly App)</p>
+        <p><strong>Status:</strong> Completed & Passed</p>
+
+        <div class="summary-badge">✓ 9 / 9 Scenarios Passed (100% Success)</div>
+
+        <hr>
+
+        <h2>1. Test Execution Matrix</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Type</th>
+                    <th>Target File</th>
+                    <th>Scenarios Tested</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Unit</strong></td>
+                    <td><code>task_model_test.dart</code></td>
+                    <td>Default values, status switches via <code>toggle()</code></td>
+                    <td class="status-pass">PASS</td>
+                </tr>
+                <tr>
+                    <td><strong>Unit</strong></td>
+                    <td><code>task_repository_test.dart</code></td>
+                    <td>Adding, deleting, and updating tasks in the repository</td>
+                    <td class="status-pass">PASS</td>
+                </tr>
+                <tr>
+                    <td><strong>Widget UI</strong></td>
+                    <td><code>task_list_widget_test.dart</code></td>
+                    <td>Empty list state displays "No tasks yet. Add one!", text insertion tap, and rendering multiple tasks</td>
+                    <td class="status-pass">PASS</td>
+                </tr>
+                <tr>
+                    <td><strong>Navigation</strong></td>
+                    <td><code>task_navigation_test.dart</code></td>
+                    <td>Tap task card navigates to TaskDetailScreen, loads detailed text field, checks page header title</td>
+                    <td class="status-pass">PASS</td>
+                </tr>
+                <tr>
+                    <td><strong>Integration</strong></td>
+                    <td><code>task_integration_test.dart</code></td>
+                    <td>End-to-End flow: create task "Original title" → open details → modify to "Updated title" → save → verify list updates</td>
+                    <td class="status-pass">PASS</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. Detailed Behaviors Validated</h2>
+        
+        <h3>Unit Level</h3>
+        <ul>
+            <li><strong>Task Instantiation:</strong> Confirmed newly created tasks default <code>isCompleted</code> to <code>false</code>.</li>
+            <li><strong>Model Immutability:</strong> Checked that calling <code>toggle()</code> returns a new <code>Task</code> instance with the inverted completion status, preventing unexpected side-effects.</li>
+            <li><strong>Repository Operations:</strong> Validated standard CRUD operations (adding, updating properties, and deleting using unique task IDs).</li>
+        </ul>
+
+        <h3>Widget & UI Level</h3>
+        <ul>
+            <li><strong>Empty Layout View:</strong> Verified that when the task list size is zero, the screen renders an empty placeholder text: <code>"No tasks yet. Add one!"</code>.</li>
+            <li><strong>Task Creation Dialog Flow:</strong> Simulated entering text in the task bar, tapping the "+" button, pumping the frames, and verifying the item tile is added to the screen.</li>
+            <li><strong>Multi-item Rendering:</strong> Confirmed the screen correctly indexes and renders multiple list items.</li>
+        </ul>
+
+        <h3>Navigation & Integration Level</h3>
+        <ul>
+            <li><strong>Transitions:</strong> Tap events on ListTile widgets navigate successfully to <code>TaskDetailScreen</code>. Checked the app bar title <code>"Task Detail"</code> and the text field key <code>detailTitleField</code>.</li>
+            <li><strong>End-to-End Lifecycle:</strong> Verified that creating a task, editing its content via the detail editor screen, and saving successfully updates the item on the main dashboard list view.</li>
+        </ul>
+
+        <h2>3. Known Limitations</h2>
+        <ul>
+            <li><strong>Volatility:</strong> Task states are maintained in-memory. Relaunching the application wipes the list database because persistent storage integration was skipped for this testing lab.</li>
+            <li><strong>Mock Client Environment:</strong> Integration tests are executed on mock clocks. Real network constraints (e.g. timeout, connection drops) are not covered.</li>
+        </ul>
+
+        <div class="footer">
+            <p>PRM392 Showcase Application © 2026 - FPT University</p>
+        </div>
+    </div>
+</body>
+</html>
