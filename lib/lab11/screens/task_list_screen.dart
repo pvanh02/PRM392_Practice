@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/task_model.dart';
 import '../services/task_repository.dart';
+import '../services/task_provider.dart';
+import 'task_tile.dart';
 import 'task_detail_screen.dart';
 
-/// Main interface for Taskly displaying all current tasks
+/// Main interface for Taskly displaying all current tasks with Selector rebuild optimizations.
 class TaskListScreen extends StatefulWidget {
   final TaskRepository repository;
 
@@ -16,35 +19,44 @@ class TaskListScreen extends StatefulWidget {
 class _TaskListScreenState extends State<TaskListScreen> {
   final TextEditingController _controller = TextEditingController();
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-cache the task icon image to prevent layout flicker
+    precacheImage(const AssetImage('assets/images/task_icon.png'), context);
+  }
+
   void _addTask() {
     final title = _controller.text.trim();
     if (title.isNotEmpty) {
-      final nextId = widget.repository.tasks.isEmpty
+      final provider = context.read<TaskProvider>();
+      final nextId = provider.tasks.isEmpty
           ? 1
-          : widget.repository.tasks.map((t) => t.id).reduce((a, b) => a > b ? a : b) + 1;
+          : provider.tasks.map((t) => t.id).reduce((a, b) => a > b ? a : b) + 1;
       final task = Task(id: nextId, title: title);
-      widget.repository.addTask(task);
+      provider.addTask(task);
       _controller.clear();
-      setState(() {});
     }
   }
 
   void _toggleTask(Task task) {
-    final updatedTask = task.toggle();
-    widget.repository.updateTask(updatedTask);
-    setState(() {});
+    context.read<TaskProvider>().toggleTask(task);
   }
 
   void _deleteTask(int id) {
-    widget.repository.deleteTask(id);
-    setState(() {});
+    context.read<TaskProvider>().deleteTask(id);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final tasksList = widget.repository.tasks;
 
     return Scaffold(
       appBar: AppBar(
@@ -64,7 +76,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
       ),
       body: Column(
         children: [
-          // Input row
+          // Input row with static design elements flagged as const
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -99,17 +111,28 @@ class _TaskListScreenState extends State<TaskListScreen> {
             ),
           ),
 
-          // ListView viewport
+          // ListView viewport using Selector to limit redraw triggers
           Expanded(
-            child: tasksList.isEmpty
-                ? Center(
+            child: Selector<TaskProvider, List<Task>>(
+              selector: (_, provider) => provider.tasks,
+              builder: (context, tasksList, child) {
+                if (tasksList.isEmpty) {
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.playlist_add_check_rounded,
-                          size: 64,
-                          color: Colors.grey.shade400,
+                        // Display the pre-cached task icon
+                        Image.asset(
+                          'assets/images/task_icon.png',
+                          width: 128,
+                          height: 128,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.playlist_add_check_rounded,
+                              size: 64,
+                              color: Colors.grey.shade400,
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         const Text(
@@ -122,51 +145,43 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ),
                       ],
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: tasksList.length,
-                    itemBuilder: (context, index) {
-                      final task = tasksList[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 2,
-                        child: ListTile(
-                          leading: Checkbox(
-                            value: task.isCompleted,
-                            onChanged: (_) => _toggleTask(task),
-                          ),
-                          title: Text(
-                            task.title,
-                            style: TextStyle(
-                              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-                              color: task.isCompleted ? Colors.grey : null,
-                              fontWeight: FontWeight.w600,
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: tasksList.length,
+                  itemBuilder: (context, index) {
+                    final task = tasksList[index];
+                    return TaskTile(
+                      key: ValueKey(task.id), // Performance key configuration
+                      task: task,
+                      onToggle: () => _toggleTask(task),
+                      onDelete: () => _deleteTask(task.id),
+                      onTap: () async {
+                        final changed = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskDetailScreen(
+                              task: task,
+                              repository: widget.repository,
                             ),
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.red),
-                            onPressed: () => _deleteTask(task.id),
-                          ),
-                          onTap: () async {
-                            final changed = await Navigator.push<bool>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TaskDetailScreen(
-                                  task: task,
-                                  repository: widget.repository,
-                                ),
-                              ),
-                            );
-                            if (changed == true) {
-                              setState(() {});
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                        if (changed == true && mounted) {
+                          // The detail screen might have updated the repository directly,
+                          // or it has used context.read<TaskProvider>().updateTask.
+                          // Call notifyListeners inside provider to ensure List updates.
+                          context.read<TaskProvider>().updateTask(
+                            context.read<TaskProvider>().tasks.firstWhere((t) => t.id == task.id)
+                          );
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

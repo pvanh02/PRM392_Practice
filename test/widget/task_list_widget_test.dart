@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/lab11/screens/task_list_screen.dart';
 import 'package:untitled/lab11/services/task_repository.dart';
+import 'package:untitled/lab11/services/task_provider.dart';
 
 void main() {
   group('TaskListScreen Widget Tests', () {
@@ -13,9 +15,13 @@ void main() {
 
     Widget createWidgetUnderTest() {
       return MaterialApp(
-        home: TaskListScreen(repository: repository),
+        home: ChangeNotifierProvider<TaskProvider>(
+          create: (_) => TaskProvider(repository: repository),
+          child: TaskListScreen(repository: repository),
+        ),
       );
     }
+
 
     testWidgets('should render empty state message when there are no tasks',
         (WidgetTester tester) async {

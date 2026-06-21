@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/lab11/models/task_model.dart';
 import 'package:untitled/lab11/screens/task_list_screen.dart';
 import 'package:untitled/lab11/services/task_repository.dart';
+import 'package:untitled/lab11/services/task_provider.dart';
 
 void main() {
   group('Taskly Navigation Tests', () {
@@ -20,9 +22,13 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: TaskListScreen(repository: repository),
+          home: ChangeNotifierProvider<TaskProvider>(
+            create: (_) => TaskProvider(repository: repository),
+            child: TaskListScreen(repository: repository),
+          ),
         ),
       );
+
 
       // Act: Tap task item tile
       final taskTile = find.text('Seed Navigation Task');

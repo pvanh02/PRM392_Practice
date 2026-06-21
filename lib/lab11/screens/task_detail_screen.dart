@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/task_model.dart';
 import '../services/task_repository.dart';
+import '../services/task_provider.dart';
 
 /// Screen allowing detailed edits to a selected task title
 class TaskDetailScreen extends StatefulWidget {
@@ -36,7 +38,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final newTitle = _controller.text.trim();
     if (newTitle.isNotEmpty) {
       final updatedTask = widget.task.copyWith(title: newTitle);
-      widget.repository.updateTask(updatedTask);
+      
+      // Attempt to update via provider, fallback to direct repository mutation
+      try {
+        Provider.of<TaskProvider>(context, listen: false).updateTask(updatedTask);
+      } catch (_) {
+        widget.repository.updateTask(updatedTask);
+      }
+      
       Navigator.pop(context, true);
     }
   }

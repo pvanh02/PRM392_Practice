@@ -26,8 +26,10 @@ import 'lab9/screens/lab9_dashboard_screen.dart';
 import 'lab10/lab10_dashboard.dart';
 
 // Import Lab 11 App
+import 'package:provider/provider.dart';
 import 'lab11/screens/task_list_screen.dart';
 import 'lab11/services/task_repository.dart';
+import 'lab11/services/task_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -386,7 +388,10 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TaskListScreen(repository: taskRepository),
+                      builder: (context) => ChangeNotifierProvider<TaskProvider>(
+                        create: (_) => TaskProvider(repository: taskRepository),
+                        child: TaskListScreen(repository: taskRepository),
+                      ),
                     ),
                   );
                 },
