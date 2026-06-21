@@ -19,6 +19,9 @@ import 'lab7/signup_screen.dart';
 // Import Lab 8 App
 import 'lab8/screens/post_list_screen.dart';
 
+// Import Lab 9 App
+import 'lab9/screens/lab9_dashboard_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -331,6 +334,19 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const PostListScreen()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 9: Local JSON Storage',
+                subtitle: 'Load items from static assets and perform persistent CRUD operations on a local device contacts file.',
+                icon: Icons.storage_outlined,
+                color: Colors.orange.shade700,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Lab9DashboardScreen()),
                   );
                 },
               ),
