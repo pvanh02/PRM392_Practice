@@ -16,6 +16,9 @@ import 'lab6/genre_screen.dart';
 // Import Lab 7 App
 import 'lab7/signup_screen.dart';
 
+// Import Lab 8 App
+import 'lab8/screens/post_list_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -315,6 +318,19 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const SignupScreen()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 8: API-powered List Screen',
+                subtitle: 'Retrieve posts from JSONPlaceholder API, parse JSON to model, support pull-to-refresh, search, item details, and creating new posts via POST.',
+                icon: Icons.cloud_sync_outlined,
+                color: Colors.teal.shade700,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PostListScreen()),
                   );
                 },
               ),
