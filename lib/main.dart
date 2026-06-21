@@ -25,6 +25,10 @@ import 'lab9/screens/lab9_dashboard_screen.dart';
 // Import Lab 10 App
 import 'lab10/lab10_dashboard.dart';
 
+// Import Lab 11 App
+import 'lab11/screens/task_list_screen.dart';
+import 'lab11/services/task_repository.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -40,6 +44,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // Global theme mode state
   ThemeMode _themeMode = ThemeMode.light;
+
+  // Global repository for Taskly (Lab 11)
+  final TaskRepository _taskRepository = TaskRepository();
 
   // Global theme switcher callback function
   void _toggleTheme(bool isDark) {
@@ -98,6 +105,7 @@ class _MyAppState extends State<MyApp> {
       home: Lab4Dashboard(
         isDarkMode: _themeMode == ThemeMode.dark,
         onThemeChanged: _toggleTheme,
+        taskRepository: _taskRepository,
       ),
     );
   }
@@ -107,11 +115,13 @@ class _MyAppState extends State<MyApp> {
 class Lab4Dashboard extends StatelessWidget {
   final bool isDarkMode;
   final ValueChanged<bool> onThemeChanged;
+  final TaskRepository taskRepository;
 
   const Lab4Dashboard({
     super.key,
     required this.isDarkMode,
     required this.onThemeChanged,
+    required this.taskRepository,
   });
 
   @override
@@ -363,6 +373,21 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Lab10Dashboard()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 11: Testing & Debugging',
+                subtitle: 'Robust unit, widget, navigation, and integration testing suites covering Taskly management workflows.',
+                icon: Icons.bug_report_outlined,
+                color: Colors.red.shade700,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TaskListScreen(repository: taskRepository),
+                    ),
                   );
                 },
               ),
