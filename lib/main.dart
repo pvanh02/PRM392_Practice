@@ -22,6 +22,9 @@ import 'lab8/screens/post_list_screen.dart';
 // Import Lab 9 App
 import 'lab9/screens/lab9_dashboard_screen.dart';
 
+// Import Lab 10 App
+import 'lab10/lab10_dashboard.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -347,6 +350,19 @@ class Lab4Dashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Lab9DashboardScreen()),
+                  );
+                },
+              ),
+              _buildExerciseCard(
+                context,
+                title: 'Lab 10: Auth & Notifications',
+                subtitle: 'Secure logins, API sessions management, Google Sign-In, and local notifications (LO7).',
+                icon: Icons.security_outlined,
+                color: Colors.indigo.shade700,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Lab10Dashboard()),
                   );
                 },
               ),
